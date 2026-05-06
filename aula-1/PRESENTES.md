@@ -1,1 +1,1 @@
-Samuel Morrissey de Lima
+Samuel Morrissey de Lima - Instrutor
