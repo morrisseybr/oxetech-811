@@ -1,3 +1,7 @@
-Samuel de Lima - Instrutor
+Samuel de Lima - Instrutor!!!
 
+Talyslan Cauan Pimentel Canabarro - Aluno
+Artur Oliveira Lins - Aluno
+Frederico Santos Saggio - Aluno
 João Raphael Oliveira - Aluno
+
