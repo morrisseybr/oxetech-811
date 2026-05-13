@@ -8,3 +8,4 @@ João Raphael Oliveira
 Talyslan Cauan Pimentel Canabarro - Aluno
 Artur Oliveira Lins - Aluno
 Frederico Santos Saggio - Aluno
+Thiago Emmanuel Gomes Rodrigues - Aluno 
