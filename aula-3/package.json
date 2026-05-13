@@ -1,0 +1,23 @@
+{
+  "name": "aula-3",
+  "version": "1.0.0",
+  "description": "Aula 3 — Clean Code: fundamentos e custo de manutenção",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "bloco1": "tsx bloco-1-nomes-e-funcoes.ts",
+    "bloco2": "tsx bloco-2-comentarios-e-formatacao.ts",
+    "bloco3": "tsx bloco-3-objetos-classes-fronteiras.ts",
+    "casa": "tsx trabalho-de-casa.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^25.7.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3"
+  }
+}
