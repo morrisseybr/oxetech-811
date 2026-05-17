@@ -8,30 +8,42 @@
 //   4) Remova o flag argument `log` (separe cálculo de efeito colateral).
 // =============================================================================
 
-type P = { n: string; v: number; q: number };
+type Produto = { nome: string; valor: number; quantidade: number };
+const DESCONTO_CLIENTE_1 = 0.05;
+const DESCONTO_CLIENTE_2 = 0.1;
 
-// Calcula o total de um carrinho aplicando desconto por tipo de cliente
-// e, opcionalmente, imprime o recibo. Mistura cálculo com efeito colateral.
-export function calc(itens: P[], t: number, log: boolean): number {
-  let s = 0;
-  for (let i = 0; i < itens.length; i++) {
-    s = s + itens[i].v * itens[i].q;
-  }
-  let d = 0;
-  if (t === 1) d = s * 0.05;
-  if (t === 2) d = s * 0.1;
-  const tot = s - d;
-  if (log === true) {
-    console.log("Subtotal: R$ " + (s / 100).toFixed(2));
-    console.log("Desconto: R$ " + (d / 100).toFixed(2));
-    console.log("Total:    R$ " + (tot / 100).toFixed(2));
-  }
-  return tot;
+export function calc(itens: Produto[], tipoCliente: number): { total: number; desconto: number; subTotal: number } {
+  const subTotal = calcSubTotal(itens);
+  const desconto = descontoPorTipoCliente(subTotal, tipoCliente);
+  const total = subTotal - desconto;
+  
+  return { total, desconto, subTotal };
 }
 
-const carrinho: P[] = [
-  { n: "Camiseta", v: 7990, q: 2 },
-  { n: "Tênis", v: 24990, q: 1 },
+function descontoPorTipoCliente(subTotal: number, tipoCliente: number): number {
+  if (tipoCliente === 1) return subTotal * DESCONTO_CLIENTE_1;
+  if (tipoCliente === 2) return subTotal * DESCONTO_CLIENTE_2;
+  return 0;
+}
+
+function exibeRecibo({ subTotal, desconto, total }: { subTotal: number; desconto: number; total: number }): void {
+  console.log("Subtotal: R$ " + (subTotal / 100).toFixed(2));
+  console.log("Desconto: R$ " + (desconto / 100).toFixed(2));
+  console.log("Total:    R$ " + (total / 100).toFixed(2));
+}
+
+function calcSubTotal(itens: Produto[]): number {
+  let subTotal = 0;
+  for (let i = 0; i < itens.length; i++) {
+    subTotal = subTotal + itens[i].valor * itens[i].quantidade;
+  }
+  return subTotal;
+}
+
+const carrinho: Produto[] = [
+  { nome: "Camiseta", valor: 7990, quantidade: 2 },
+  { nome: "Tênis", valor: 24990, quantidade: 1 },
 ];
 
-calc(carrinho, 1, true);
+const recibo = calc(carrinho, 1);
+exibeRecibo(recibo);
