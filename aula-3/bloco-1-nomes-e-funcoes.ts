@@ -8,30 +8,41 @@
 //   4) Remova o flag argument `log` (separe cálculo de efeito colateral).
 // =============================================================================
 
-type P = { n: string; v: number; q: number };
+type Produto = { nome: string; valor: number; quantidade: number };
 
 // Calcula o total de um carrinho aplicando desconto por tipo de cliente
 // e, opcionalmente, imprime o recibo. Mistura cálculo com efeito colateral.
-export function calc(itens: P[], t: number, log: boolean): number {
-  let s = 0;
-  for (let i = 0; i < itens.length; i++) {
-    s = s + itens[i].v * itens[i].q;
-  }
-  let d = 0;
-  if (t === 1) d = s * 0.05;
-  if (t === 2) d = s * 0.1;
-  const tot = s - d;
-  if (log === true) {
-    console.log("Subtotal: R$ " + (s / 100).toFixed(2));
-    console.log("Desconto: R$ " + (d / 100).toFixed(2));
-    console.log("Total:    R$ " + (tot / 100).toFixed(2));
-  }
-  return tot;
+export function calcularValorTotal(itens: Produto[], tipoDesconto: number): number {
+  const subTotal = calcularSubtotal(itens)
+  const desconto = calcularDesconto(subTotal, tipoDesconto);
+  const total = subTotal - desconto;
+  return total;
 }
 
-const carrinho: P[] = [
-  { n: "Camiseta", v: 7990, q: 2 },
-  { n: "Tênis", v: 24990, q: 1 },
+function calcularSubtotal(itens: Produto[]) : number {
+    let subTotal = 0;
+    for (let i = 0; i < itens.length; i++) {
+    subTotal = subTotal + itens[i].valor * itens[i].quantidade;
+  }
+
+  return subTotal;
+}
+
+function calcularDesconto(subTotal: number, tipoDesconto: number): number {
+  if (tipoDesconto === 1) return subTotal * 0.05;
+  if (tipoDesconto === 2) return subTotal * 0.1;
+  return 0;
+}
+
+function imprimirRecibo(subTotal: number, desconto: number, total: number){
+    console.log("Subtotal: R$ " + (subTotal / 100).toFixed(2));
+    console.log("Desconto: R$ " + (desconto / 100).toFixed(2));
+    console.log("Total:    R$ " + (total / 100).toFixed(2));
+}
+
+const carrinho: Produto[] = [
+  { nome: "Camiseta", valor: 7990, quantidade: 2 },
+  { nome: "Tênis", valor: 24990, quantidade: 1 },
 ];
 
-calc(carrinho, 1, true);
+calcularValorTotal(carrinho, 1);

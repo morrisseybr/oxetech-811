@@ -20,11 +20,11 @@
 //   - A descrição do PR conta POR QUÊ você mexeu em cada coisa.
 // =============================================================================
 
-type Emp = {
-    diasDeAtraso:number;
-    cat:string;        // "tecnico", "ficcao", "infantil"
-    t:number;          // 1 = aluno, 2 = professor, 3 = visitante
-    precoLivro:number; // em centavos
+type Emprestimo = {
+    diasDeAtraso: number;
+    categoria: string;      
+    tipoPessoa: number;      
+    precoLivro: number; 
 };
 
 // calcula a multa de um emprestimo atrasado
@@ -35,25 +35,42 @@ type Emp = {
 //   - 2 reais por dia para visitante
 //   - se atraso > 30 dias, soma 50% do preco do livro
 //   - livro tecnico paga em dobro
-export function calc(e:Emp):number{
-    if(e.diasDeAtraso<=0){ return 0; }
-    let v=0;
-    if(e.t===1){ v=100; }
-    if(e.t===2){ v=50; }
-    if(e.t===3){ v=200; }
-    let m=v*e.diasDeAtraso; // multa base
-    // adicional se atraso longo
-    if(e.diasDeAtraso>30){
-        m=m+Math.floor(e.precoLivro*0.5);
-    }
-    // tecnico em dobro
-    if(e.cat==="tecnico"){
-        m=m*2;
-    }
-    return m;
+export function calcularMultaPorAtraso(emprestimo: Emprestimo): number {
+    if(emprestimo.diasDeAtraso <= 0){ return 0; }
+
+    let multa = calcularValorMulta(emprestimo)       // multa base
+
+    return multa;
 }
 
+function calcularValorMulta(emprestimo: Emprestimo): number {
+    let valorMulta = 0;
+
+    if(emprestimo.tipoPessoa === 1){ valorMulta = 100; }
+    if(emprestimo.tipoPessoa === 2){ valorMulta = 50; }
+    if(emprestimo.tipoPessoa === 3){ valorMulta = 200; }
+
+    valorMulta = valorMulta * emprestimo.diasDeAtraso;
+
+    valorMulta = valorAdicional(emprestimo, valorMulta);
+
+    return valorMulta;
+}
+
+function valorAdicional(emprestimo: Emprestimo, valorMulta: number): number {
+    // adicional se atraso longo
+    if(emprestimo.diasDeAtraso > 30){
+        valorMulta = valorMulta + Math.floor(emprestimo.precoLivro * 0.5);
+    }
+    // tecnico em dobro
+    if(emprestimo.categoria === "tecnico"){
+        valorMulta = valorMulta * 2;
+    }
+    return valorMulta;
+}
+
+
 // exemplos — a saída no console não pode mudar depois da refatoração
-console.log("Aluno, 5 dias, ficcao:",       calc({ diasDeAtraso: 5,  cat: "ficcao",   t: 1, precoLivro: 4990 }));
-console.log("Professor, 35 dias, tecnico:", calc({ diasDeAtraso: 35, cat: "tecnico",  t: 2, precoLivro: 9990 }));
-console.log("Visitante, 0 dias:",           calc({ diasDeAtraso: 0,  cat: "infantil", t: 3, precoLivro: 3990 }));
+console.log("Aluno, 5 dias, ficcao:",       calcularMultaPorAtraso({ diasDeAtraso: 5,  categoria: "ficcao",   tipoPessoa: 1, precoLivro: 4990 }));
+console.log("Professor, 35 dias, tecnico:", calcularMultaPorAtraso({ diasDeAtraso: 35, categoria: "tecnico",  tipoPessoa: 2, precoLivro: 9990 }));
+console.log("Visitante, 0 dias:",           calcularMultaPorAtraso({ diasDeAtraso: 0,  categoria: "infantil", tipoPessoa: 3, precoLivro: 3990 }));
