@@ -19,46 +19,70 @@ export const PagamentoVendorSDK = {
   },
 };
 
+export class Endereco {
+  constructor(
+    private readonly rua: string,
+    private readonly cidade: string,
+    private readonly estado: string,
+  ) {}
+
+  public cidadeFormatada(): string {
+    return this.cidade + "/" + this.estado 
+  }
+}
+
 export class Cliente {
-  public nome = "";
-  public endereco = { rua: "", cidade: { nome: "", estado: { sigla: "" } } };
-}
+  constructor(
+    public readonly nome: string,
+    private readonly endereco: Endereco
+  ) {}
 
-export class Pedido {
-  public clienteNome = "";
-  public totalCentavos = 0;
-  public txid = "";
-  public estaPago(): boolean {
-    return this.txid !== "";
+  public cidadeEntrega(): string {
+    return this.endereco.cidadeFormatada()
   }
 }
 
-export class GerenciadorDePedidos {
-  public processar(cliente: Cliente, totalCentavos: number, token: string): Pedido {
-    // Deméter: cadeia de getters expondo a estrutura interna do cliente.
-    console.log(
-      "Entrega para " +
-        cliente.endereco.cidade.nome +
-        "/" +
-        cliente.endereco.cidade.estado.sigla
-    );
+export type Pedido ={
+  readonly clienteNome: string,
+  readonly totalCentavos: number,
+  readonly txid: string,
+};
 
-    // Dependência direta do vendor — sem fronteira, sem adapter.
-    const r = PagamentoVendorSDK.charge({ amount_cents: totalCentavos, token });
-    if (r.status === "fail") {
-      throw new Error("Falha vendor código " + r.code);
-    }
+export class FalhaPagamento extends Error {
+  constructor(public readonly codigo: number){
+    super("Falha no pagamento ( codigo " + codigo + ")")
+  }
+}
 
-    const p = new Pedido();
-    p.clienteNome = cliente.nome;
-    p.totalCentavos = totalCentavos;
-    p.txid = r.txid!;
+export interface GetewayPagamento {
+  cobrar(valorCentavos: number, token: string): string;
+}
+
+export class GetewayVendedor {
+  public cobrar(valorCentavos: number, token: string): string {
+    const resposta = PagamentoVendorSDK.charge({
+    amount_cents: valorCentavos,
+    token
+  });
+  if(resposta.status === 'fail' || resposta.txid === undefined){
+    throw new FalhaPagamento(resposta.code);
+  }
+  return resposta.txid;
+  };
+  
+}
+
+export class ServicoPedidos {
+  constructor(private readonly geteway: GetewayPagamento){}
+
+  public Processar(
+    cliente: Cliente,
+    totalCentavos: number,
+    token: string
+  ): Pedido {
+    console.log("Entrega para " + cliente.cidadeEntrega());
+    const txid = this.geteway.cobrar(totalCentavos, token);
     console.log("E-mail enviado para " + cliente.nome);
-    return p;
+    return {clienteNome: cliente.nome, totalCentavos, txid};
   }
 }
-
-const c = new Cliente();
-c.nome = "Ana";
-c.endereco = { rua: "X", cidade: { nome: "Aracaju", estado: { sigla: "SE" } } };
-console.log(new GerenciadorDePedidos().processar(c, 10000, "tok123"));
