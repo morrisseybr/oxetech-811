@@ -8,28 +8,28 @@
 // =============================================================================
 
 export class Usuario {
-	public id: string;
-	public nomeDoUsuario: string;
-	public idade: number;
+  public id: string;
+  public nomeDoUsuario: string;
+  public idade: number;
 
-	constructor(id: string, nm: string, idd: number) {
-		this.id = id; 
-		this.nomeDoUsuario = nm; 
-		this.idade = idd; 
-	}
+  constructor(id: string, nm: string, idd: number) {
+    this.id = id;
+    this.nomeDoUsuario = nm;
+    this.idade = idd;
+  }
 
-	// OBS: alterado em 02/2024 — antes era 21
-	public ehMaiorDeIdade(): boolean {
-		if (this.idade >= 18) {
-			return true; 
-		} else {
-			return false;
-		}
-	}
+  // OBS: alterado em 02/2024 — antes era 21
+  public ehMaiorDeIdade(): boolean {
+    if (this.idade >= 18) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
 
 export function f(a: number, b: number) {
-	return a + b; 
+  return a + b;
 }
 
 console.log(new Usuario("u1", "Ana", 20).ehMaiorDeIdade());
