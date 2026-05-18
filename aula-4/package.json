@@ -1,0 +1,30 @@
+{
+	"name": "aula-4",
+	"version": "1.0.0",
+	"description": "Aula 4 — Code Smells, Anti-patterns e Refatoração",
+	"private": true,
+	"type": "commonjs",
+	"scripts": {
+		"bloco1": "tsx bloco-1-smells-em-funcoes.ts",
+		"bloco2": "tsx bloco-2-smells-em-classes-e-modulos.ts",
+		"bloco3": "tsx bloco-3-antipatterns-refatoracao-segura.ts",
+		"casa": "tsx trabalho-de-casa.ts",
+		"typecheck": "tsc --noEmit",
+		"build": "tsc",
+		"format": "biome format --write .",
+		"lint": "biome check ."
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"express": "^5.1.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.15",
+		"@types/express": "^5.0.6",
+		"@types/node": "^25.7.0",
+		"tsx": "^4.21.0",
+		"typescript": "^6.0.3"
+	}
+}
