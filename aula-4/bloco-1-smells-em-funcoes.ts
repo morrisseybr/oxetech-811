@@ -64,6 +64,14 @@ function applyBlackFridayDiscount(currentDiscount: number, couponCode: couponCod
 function restrictMaxDiscount(currentDiscount: number): number {
 	return currentDiscount > MAX_DISCOUNT ? MAX_DISCOUNT : currentDiscount;
 }
+
+function calculateTotal(subtotal: number, discount: number, tax: number, shipping: number): number {
+	const discountValue = subtotal * discount;
+	const totalBeforeTax = subtotal - discountValue;
+	const taxValue = totalBeforeTax * tax;
+	const total = totalBeforeTax + taxValue + shipping;
+	return Math.round(total);
+}
 export function calculateOrderTotal(
 	order: Order,
 	discount: number,
@@ -71,26 +79,17 @@ export function calculateOrderTotal(
 	shipping: number,
 	coupon: couponCodesAndDiscounts,
 ): number {
-	// soma os itens
 	let subtotal = sumSubtotal(order.items);
 
-	// aplica cupom
 	let finalDiscount = discount;
     finalDiscount = applyBlackFridayDiscount(finalDiscount, coupon);
 	if(hasFreeShipping(subtotal, coupon)) {
 		shipping = 0;
 	}
-
-	// desconto maximo de 40%
+	
 	finalDiscount = restrictMaxDiscount(finalDiscount);
-
-	// calcula total
-	const discountValue = subtotal * finalDiscount;
-	const totalBeforeTax = subtotal - discountValue;
-	const taxValue = totalBeforeTax * tax;
-	const total = totalBeforeTax + taxValue + shipping;
-
-	return Math.round(total);
+	
+	return calculateTotal(subtotal, finalDiscount, tax, shipping);
 }
 
 const app = express();
