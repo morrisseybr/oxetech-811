@@ -10,6 +10,26 @@
 
 type RegistroDeItem = { nomeDoItem: string; valorDoItem: number; quantidadeDoItem: number };
 
+type TipoCliente = "aluno" | "professor";
+
+const descontoPorTipoCliente = {
+	"aluno": 0.05,
+	"professor": 0.1,    
+} as const;
+
+function calcularSubtotal(itens: RegistroDeItem[]): number {
+	return itens.reduce((valorAcumulado, item) => valorAcumulado + item.valorDoItem * item.quantidadeDoItem, 0);
+}
+
+function calcularDesconto(precoTotal: number, tipoCliente: TipoCliente): number {
+	return descontoPorTipoCliente[tipoCliente] * precoTotal;
+}
+
+function registrarLogDeVendas(precoTotal: number, desconto: number, precoFinal: number): void {
+	console.log("Subtotal: R$ " + (precoTotal / 100).toFixed(2));
+	console.log("Desconto: R$ " + (desconto / 100).toFixed(2));
+	console.log("Total:    R$ " + (precoFinal / 100).toFixed(2));
+}
 // Calcula o total de um carrinho aplicando desconto por tipo de cliente
 // e, opcionalmente, imprime o recibo. Mistura cálculo com efeito colateral.
 export function calc(itens: P[], t: number, log: boolean): number {
