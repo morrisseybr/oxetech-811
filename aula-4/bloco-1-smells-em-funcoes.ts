@@ -25,42 +25,64 @@ type OrderItem = {
 	quantity: number;
 };
 
+enum couponCodesAndDiscounts {
+	BLACKFRIDAY = "BLACKFRIDAY",
+	FRETEGRATIS = "FRETEGRATIS"
+}
+
+const BLACKFRIDAY_DISCOUNT = 0.1;
+const MAX_DISCOUNT = 0.4;
+const FREE_SHIPPING_THRESHOLD = 50000;
+	
+
+
 type Order = {
 	id: string;
 	items: OrderItem[];
 };
 
+// Refatoração - Função de Responsabilidade Única ( somar subtotal )
+function sumSubtotal(items: OrderItem[]): number {
+	let subtotal = 0;
+	for (const item of items) {
+		subtotal = subtotal + item.priceInCents * item.quantity;
+	}
+	return subtotal;
+}
+
+function hasFreeShipping(subtotal: number, couponCode: couponCodesAndDiscounts): boolean {
+	return subtotal > FREE_SHIPPING_THRESHOLD || couponCode === couponCodesAndDiscounts.FRETEGRATIS
+}
+
+function applyBlackFridayDiscount(currentDiscount: number, couponCode: couponCodesAndDiscounts): number {
+	if(couponCode === couponCodesAndDiscounts.BLACKFRIDAY) {
+		return currentDiscount + BLACKFRIDAY_DISCOUNT;
+	}
+	return currentDiscount;
+}
+
+function restrictMaxDiscount(currentDiscount: number): number {
+	return currentDiscount > MAX_DISCOUNT ? MAX_DISCOUNT : currentDiscount;
+}
 export function calculateOrderTotal(
 	order: Order,
 	discount: number,
 	tax: number,
 	shipping: number,
-	coupon: string,
+	coupon: couponCodesAndDiscounts,
 ): number {
 	// soma os itens
-	let subtotal = 0;
-	for (const item of order.items) {
-		subtotal = subtotal + item.priceInCents * item.quantity;
-	}
+	let subtotal = sumSubtotal(order.items);
 
 	// aplica cupom
 	let finalDiscount = discount;
-	if (coupon === "BLACKFRIDAY") {
-		finalDiscount = finalDiscount + 0.1;
-	}
-	if (coupon === "FRETEGRATIS") {
-		shipping = 0;
-	}
-
-	// frete gratis acima de 500 reais
-	if (subtotal > 50000) {
+    finalDiscount = applyBlackFridayDiscount(finalDiscount, coupon);
+	if(hasFreeShipping(subtotal, coupon)) {
 		shipping = 0;
 	}
 
 	// desconto maximo de 40%
-	if (finalDiscount > 0.4) {
-		finalDiscount = 0.4;
-	}
+	finalDiscount = restrictMaxDiscount(finalDiscount);
 
 	// calcula total
 	const discountValue = subtotal * finalDiscount;
@@ -80,7 +102,7 @@ app.post("/orders/preview", (request, response) => {
 		Number(request.body.discount ?? 0),
 		Number(request.body.tax ?? 0),
 		Number(request.body.shipping ?? 0),
-		String(request.body.coupon ?? ""),
+		(request.body.coupon ?? "") as couponCodesAndDiscounts,
 	);
 
 	response.json({ totalInCents: total });
@@ -98,9 +120,9 @@ const sampleOrder: Order = {
 
 console.log(
 	"Total com BLACKFRIDAY:",
-	calculateOrderTotal(sampleOrder, 0.05, 0.08, 2500, "BLACKFRIDAY"),
+	calculateOrderTotal(sampleOrder, 0.05, 0.08, 2500, couponCodesAndDiscounts.BLACKFRIDAY),
 );
 console.log(
 	"Total com FRETEGRATIS:",
-	calculateOrderTotal(sampleOrder, 0, 0.08, 2500, "FRETEGRATIS"),
+	calculateOrderTotal(sampleOrder, 0, 0.08, 2500, couponCodesAndDiscounts.FRETEGRATIS),
 );
