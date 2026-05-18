@@ -8,7 +8,7 @@
 //   4) Remova o flag argument `log` (separe cálculo de efeito colateral).
 // =============================================================================
 
-type P = { n: string; v: number; q: number };
+type RegistroDeItem = { nomeDoItem: string; valorDoItem: number; quantidadeDoItem: number };
 
 // Calcula o total de um carrinho aplicando desconto por tipo de cliente
 // e, opcionalmente, imprime o recibo. Mistura cálculo com efeito colateral.
