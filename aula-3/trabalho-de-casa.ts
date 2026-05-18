@@ -35,26 +35,33 @@ type Emprestimo = {
 //   - 2 reais por dia para visitante
 //   - se atraso > 30 dias, soma 50% do preco do livro
 //   - livro tecnico paga em dobro
+const MULTA_POR_DIA_ALUNO = 100;
+const MULTA_POR_DIA_PROFESSOR = 50;
+const MULTA_POR_DIA_VISITANTE = 200;
+const LIMITE_ATRASO_LONGO = 30;
+const MULTA_ADICIONAL_ATRASO_LONGO = 0.5;
+const MULTIPLICADOR_LIVRO_TECNICO = 2;
+
 export function calcularMulta(emprestimo: Emprestimo): number {
 	if (emprestimo.diasDeAtraso <= 0) {
 		return 0;
 	}
 	let valorMulta = 0;
 	if (emprestimo.tipoUsuario === 1) {
-		valorMulta = 100;
+		valorMulta = MULTA_POR_DIA_ALUNO;
 	}
 	if (emprestimo.tipoUsuario === 2) {
-		valorMulta = 50;
+		valorMulta = MULTA_POR_DIA_PROFESSOR;
 	}
 	if (emprestimo.tipoUsuario === 3) {
-		valorMulta = 200;
+		valorMulta = MULTA_POR_DIA_VISITANTE;
 	}
 	let m = valorMulta * emprestimo.diasDeAtraso;
-	if (emprestimo.diasDeAtraso > 30) {
-		m = m + Math.floor(emprestimo.precoLivro * 0.5);
+	if (emprestimo.diasDeAtraso > LIMITE_ATRASO_LONGO) {
+		m = m + Math.floor(emprestimo.precoLivro * MULTA_ADICIONAL_ATRASO_LONGO);
 	}
 	if (emprestimo.categoria === "tecnico") {
-		m = m * 2;
+		m = m * MULTIPLICADOR_LIVRO_TECNICO;
 	}
 	return m;
 }
