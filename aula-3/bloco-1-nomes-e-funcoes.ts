@@ -13,25 +13,25 @@ type P = { n: string; v: number; q: number };
 // Calcula o total de um carrinho aplicando desconto por tipo de cliente
 // e, opcionalmente, imprime o recibo. Mistura cálculo com efeito colateral.
 export function calc(itens: P[], t: number, log: boolean): number {
-  let s = 0;
-  for (let i = 0; i < itens.length; i++) {
-    s = s + itens[i].v * itens[i].q;
-  }
-  let d = 0;
-  if (t === 1) d = s * 0.05;
-  if (t === 2) d = s * 0.1;
-  const tot = s - d;
-  if (log === true) {
-    console.log("Subtotal: R$ " + (s / 100).toFixed(2));
-    console.log("Desconto: R$ " + (d / 100).toFixed(2));
-    console.log("Total:    R$ " + (tot / 100).toFixed(2));
-  }
-  return tot;
+	let s = 0;
+	for (let i = 0; i < itens.length; i++) {
+		s = s + itens[i].v * itens[i].q;
+	}
+	let d = 0;
+	if (t === 1) d = s * 0.05;
+	if (t === 2) d = s * 0.1;
+	const tot = s - d;
+	if (log === true) {
+		console.log("Subtotal: R$ " + (s / 100).toFixed(2));
+		console.log("Desconto: R$ " + (d / 100).toFixed(2));
+		console.log("Total:    R$ " + (tot / 100).toFixed(2));
+	}
+	return tot;
 }
 
 const carrinho: P[] = [
-  { n: "Camiseta", v: 7990, q: 2 },
-  { n: "Tênis", v: 24990, q: 1 },
+	{ n: "Camiseta", v: 7990, q: 2 },
+	{ n: "Tênis", v: 24990, q: 1 },
 ];
 
 calc(carrinho, 1, true);
