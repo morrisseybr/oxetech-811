@@ -49,19 +49,16 @@ export function calc(e: Emp): number {
 	if (e.t === 3) {
 		v = 200;
 	}
-	let m = v * e.diasDeAtraso; // multa base
-	// adicional se atraso longo
+	let m = v * e.diasDeAtraso;
 	if (e.diasDeAtraso > 30) {
 		m = m + Math.floor(e.precoLivro * 0.5);
 	}
-	// tecnico em dobro
 	if (e.cat === "tecnico") {
 		m = m * 2;
 	}
 	return m;
 }
 
-// exemplos — a saída no console não pode mudar depois da refatoração
 console.log(
 	"Aluno, 5 dias, ficcao:",
 	calc({ diasDeAtraso: 5, cat: "ficcao", t: 1, precoLivro: 4990 }),
