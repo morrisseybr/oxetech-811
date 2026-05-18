@@ -20,40 +20,75 @@
 //   - A descrição do PR conta POR QUÊ você mexeu em cada coisa.
 // =============================================================================
 
-type Emp = {
-    diasDeAtraso:number;
-    cat:string;        // "tecnico", "ficcao", "infantil"
-    t:number;          // 1 = aluno, 2 = professor, 3 = visitante
-    precoLivro:number; // em centavos
+type LivroEmprestado = {
+	diasDeAtraso: number;
+	categoria: string;
+	tipoUsuario: number; // 1 = aluno, 2 = professor, 3 = visitante
+	precoLivro: number; // em centavos
 };
 
-// calcula a multa de um emprestimo atrasado
-// recebe o emprestimo e retorna o valor da multa em centavos
-// regras:
-//   - 1 real por dia de atraso para aluno
-//   - 50 centavos por dia para professor
-//   - 2 reais por dia para visitante
-//   - se atraso > 30 dias, soma 50% do preco do livro
-//   - livro tecnico paga em dobro
-export function calc(e:Emp):number{
-    if(e.diasDeAtraso<=0){ return 0; }
-    let v=0;
-    if(e.t===1){ v=100; }
-    if(e.t===2){ v=50; }
-    if(e.t===3){ v=200; }
-    let m=v*e.diasDeAtraso; // multa base
-    // adicional se atraso longo
-    if(e.diasDeAtraso>30){
-        m=m+Math.floor(e.precoLivro*0.5);
-    }
-    // tecnico em dobro
-    if(e.cat==="tecnico"){
-        m=m*2;
-    }
-    return m;
+export function calculaMulta(registroEmprestimo: LivroEmprestado): number {
+	if (registroEmprestimo.diasDeAtraso <= 0) {
+		return 0;
+	}
+
+	let valorAtrasoPorDia = 0;
+	const taxaAdicional = 0.5;
+	const LIMITE_DIAS_ATRASO = 30;
+
+	valorAtrasoPorDia = multaBasePorDia(registroEmprestimo.tipoUsuario);
+	let multa = valorAtrasoPorDia * registroEmprestimo.diasDeAtraso;
+
+	if (registroEmprestimo.diasDeAtraso > LIMITE_DIAS_ATRASO) {
+		multa = multa + Math.floor(registroEmprestimo.precoLivro * taxaAdicional);
+	}
+	if (registroEmprestimo.categoria === "tecnico") {
+		multa = multa * 2;
+	}
+	return multa;
+}
+
+function multaBasePorDia(tipoUsuario: number): number {
+	const multaPorDiaAluno = 100;
+	const multaPorDiaProfessor = 50;
+	const multaPorDiaVisitante = 200;
+	if (tipoUsuario === 1) {
+		return multaPorDiaAluno;
+	}
+	if (tipoUsuario === 2) {
+		return multaPorDiaProfessor;
+	}
+	if (tipoUsuario === 3) {
+		return multaPorDiaVisitante;
+	}
+	return 0;
 }
 
 // exemplos — a saída no console não pode mudar depois da refatoração
-console.log("Aluno, 5 dias, ficcao:",       calc({ diasDeAtraso: 5,  cat: "ficcao",   t: 1, precoLivro: 4990 }));
-console.log("Professor, 35 dias, tecnico:", calc({ diasDeAtraso: 35, cat: "tecnico",  t: 2, precoLivro: 9990 }));
-console.log("Visitante, 0 dias:",           calc({ diasDeAtraso: 0,  cat: "infantil", t: 3, precoLivro: 3990 }));
+console.log(
+	"Aluno, 5 dias, ficcao:",
+	calculaMulta({
+		diasDeAtraso: 5,
+		categoria: "ficcao",
+		tipoUsuario: 1,
+		precoLivro: 4990,
+	}),
+);
+console.log(
+	"Professor, 35 dias, tecnico:",
+	calculaMulta({
+		diasDeAtraso: 35,
+		categoria: "tecnico",
+		tipoUsuario: 2,
+		precoLivro: 9990,
+	}),
+);
+console.log(
+	"Visitante, 0 dias:",
+	calculaMulta({
+		diasDeAtraso: 0,
+		categoria: "infantil",
+		tipoUsuario: 3,
+		precoLivro: 3990,
+	}),
+);

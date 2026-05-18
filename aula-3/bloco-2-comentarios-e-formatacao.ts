@@ -13,14 +13,14 @@ export class Usuario {
 	public idade: number;
 
 	constructor(id: string, nome: string, idade: number) {
-		this.id = id; 
-		this.nome = nome; 
-		this.idade = idade; 
+		this.id = id;
+		this.nome = nome;
+		this.idade = idade;
 	}
 
 	public ehMaiorDeIdade(): boolean {
 		if (this.idade >= 18) {
-			return true; 
+			return true;
 		} else {
 			return false;
 		}
