@@ -68,13 +68,28 @@ export function calcularMulta(emprestimo: Emprestimo): number {
 
 console.log(
 	"Aluno, 5 dias, ficcao:",
-	calcularMulta({ diasDeAtraso: 5, categoria: "ficcao", tipoUsuario: 1, precoLivro: 4990 }),
+	calcularMulta({
+		diasDeAtraso: 5,
+		categoria: "ficcao",
+		tipoUsuario: 1,
+		precoLivro: 4990,
+	}),
 );
 console.log(
 	"Professor, 35 dias, tecnico:",
-	calcularMulta({ diasDeAtraso: 35, categoria: "tecnico", tipoUsuario: 2, precoLivro: 9990 }),
+	calcularMulta({
+		diasDeAtraso: 35,
+		categoria: "tecnico",
+		tipoUsuario: 2,
+		precoLivro: 9990,
+	}),
 );
 console.log(
 	"Visitante, 0 dias:",
-	calcularMulta({ diasDeAtraso: 0, categoria: "infantil", tipoUsuario: 3, precoLivro: 3990 }),
+	calcularMulta({
+		diasDeAtraso: 0,
+		categoria: "infantil",
+		tipoUsuario: 3,
+		precoLivro: 3990,
+	}),
 );
