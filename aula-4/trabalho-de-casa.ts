@@ -63,17 +63,18 @@ function valorDoIngresso(tipoIngresso: string): number {
 }
 
 function totalComDesconto(preco: number, usuario: string, cupom: string): number {
+	let total = preco
 	if (usuario === "estudante") {
-		preco = preco - preco * DESCONTO_ESTUDANTE;
+		total = total - total * DESCONTO_ESTUDANTE;
 	}
 	if (usuario === "funcionario") {
-		preco = preco - preco * DESCONTO_FUNCIONARIO;
+		total = total - total * DESCONTO_FUNCIONARIO;
 	}
 	if (cupom === "AULA4") {
-		preco = preco - CUPOM_AULA4;
+		total = total - CUPOM_AULA4;
 	}
 
-	return preco;
+	return total;
 }
 
 const app = express();
