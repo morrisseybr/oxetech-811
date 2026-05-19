@@ -80,20 +80,20 @@ const app = express();
 app.use(express.json());
 
 app.post("/tickets/quote", (request, response) => {
-	response.json({ totalInCents: calc(request.body) });
+	response.json({ totalInCents: calcularValorIngresso(request.body) });
 });
 
 export { app };
 
 console.log(
 	"Estudante normal x2:",
-	calc({ tipoIngresso: "normal", quantidade: 2, usuario: "estudante", cupom: "" }),
+	calcularValorIngresso({ tipoIngresso: "normal", quantidade: 2, usuario: "estudante", cupom: "" }),
 );
 console.log(
 	"Funcionario vip x1 com cupom:",
-	calc({ tipoIngresso: "vip", quantidade: 1, usuario: "funcionario", cupom: "AULA4" }),
+	calcularValorIngresso({ tipoIngresso: "vip", quantidade: 1, usuario: "funcionario", cupom: "AULA4" }),
 );
 console.log(
 	"Cliente meia x3:",
-	calc({ tipoIngresso: "meia", quantidade: 3, usuario: "cliente", cupom: "" }),
+	calcularValorIngresso({ tipoIngresso: "meia", quantidade: 3, usuario: "cliente", cupom: "" }),
 );
