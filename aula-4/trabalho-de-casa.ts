@@ -24,34 +24,34 @@ import express from "express";
 // =============================================================================
 
 type TicketQuote = {
-	t: string; // "normal", "vip", "meia"
-	qtd: number;
-	usr: string; // "estudante", "cliente", "funcionario"
-	cupom: string;
+	ticketType: string; // "normal", "vip", "meia"
+	quantity: number;
+	user: string; // "estudante", "cliente", "funcionario"
+	coupon: string;
 };
 
 export function calc(ticket: TicketQuote): number {
 	let price = 0;
 
-	if (ticket.t === "normal") {
+	if (ticket.ticketType === "normal") {
 		price = 4000;
 	}
-	if (ticket.t === "vip") {
+	if (ticket.ticketType === "vip") {
 		price = 9000;
 	}
-	if (ticket.t === "meia") {
+	if (ticket.ticketType === "meia") {
 		price = 2000;
 	}
 
-	let total = price * ticket.qtd;
+	let total = price * ticket.quantity;
 
-	if (ticket.usr === "estudante") {
+	if (ticket.user === "estudante") {
 		total = total - total * 0.1;
 	}
-	if (ticket.usr === "funcionario") {
+	if (ticket.user === "funcionario") {
 		total = total - total * 0.2;
 	}
-	if (ticket.cupom === "AULA4") {
+	if (ticket.coupon === "AULA4") {
 		total = total - 500;
 	}
 
@@ -73,13 +73,13 @@ export { app };
 
 console.log(
 	"Estudante normal x2:",
-	calc({ t: "normal", qtd: 2, usr: "estudante", cupom: "" }),
+	calc({ ticketType: "normal", quantity: 2, user: "estudante", coupon: "" }),
 );
 console.log(
 	"Funcionario vip x1 com cupom:",
-	calc({ t: "vip", qtd: 1, usr: "funcionario", cupom: "AULA4" }),
+	calc({ ticketType: "vip", quantity: 1, user: "funcionario", coupon: "AULA4" }),
 );
 console.log(
 	"Cliente meia x3:",
-	calc({ t: "meia", qtd: 3, usr: "cliente", cupom: "" }),
+	calc({ ticketType: "meia", quantity: 3, user: "cliente", coupon: "" }),
 );
