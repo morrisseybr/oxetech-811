@@ -30,58 +30,92 @@ type Order = {
 	items: OrderItem[];
 };
 
+type CalculateOrderTotalOptions = {
+	discount: number;
+	tax: number;
+	shipping: number;
+	coupon: string;
+};
+
+const DISCOUNT_BLACKFRIDAY = 0.1;
+const DISCOUNT_SHIPPING = 0;
+const DISCOUNT_MAX = 0.4;
+const FREE_SHIPPING_THRESHOLD = 50000;
+
 export function calculateOrderTotal(
 	order: Order,
-	discount: number,
-	tax: number,
-	shipping: number,
-	coupon: string,
+	orderOptions: CalculateOrderTotalOptions,
 ): number {
-	// soma os itens
-	let subtotal = 0;
-	for (const item of order.items) {
-		subtotal = subtotal + item.priceInCents * item.quantity;
-	}
-
-	// aplica cupom
-	let finalDiscount = discount;
-	if (coupon === "BLACKFRIDAY") {
-		finalDiscount = finalDiscount + 0.1;
-	}
-	if (coupon === "FRETEGRATIS") {
-		shipping = 0;
-	}
-
-	// frete gratis acima de 500 reais
-	if (subtotal > 50000) {
-		shipping = 0;
-	}
-
-	// desconto maximo de 40%
-	if (finalDiscount > 0.4) {
-		finalDiscount = 0.4;
-	}
+	const subtotal = calculateSubtotal(order.items);
+	const discount = calculateDiscount(
+		orderOptions.discount,
+		orderOptions.coupon,
+	);
+	const shipping = calculateShipping(
+		subtotal,
+		orderOptions.shipping,
+		orderOptions.coupon,
+	);
 
 	// calcula total
-	const discountValue = subtotal * finalDiscount;
+	const discountValue = subtotal * discount;
 	const totalBeforeTax = subtotal - discountValue;
-	const taxValue = totalBeforeTax * tax;
+	const taxValue = totalBeforeTax * orderOptions.tax;
 	const total = totalBeforeTax + taxValue + shipping;
 
 	return Math.round(total);
+}
+
+function calculateSubtotal(orderItems: OrderItem[]): number {
+	let subtotal = 0;
+	for (const item of orderItems) {
+		subtotal = subtotal + item.priceInCents * item.quantity;
+	}
+	return subtotal;
+}
+
+function calculateDiscount(discount: number, coupon: string): number {
+	let finalDiscount = discount;
+
+	if (coupon === "BLACKFRIDAY") {
+		finalDiscount = finalDiscount + DISCOUNT_BLACKFRIDAY;
+	}
+
+	if (finalDiscount > DISCOUNT_MAX) {
+		finalDiscount = DISCOUNT_MAX;
+	}
+
+	return finalDiscount;
+}
+
+function calculateShipping(
+	subtotal: number,
+	shipping: number,
+	coupon: string,
+): number {
+	if (coupon === "FRETEGRATIS") {
+		shipping = DISCOUNT_SHIPPING;
+	}
+
+	if (subtotal > FREE_SHIPPING_THRESHOLD) {
+		shipping = DISCOUNT_SHIPPING;
+	}
+
+	return shipping;
 }
 
 const app = express();
 app.use(express.json());
 
 app.post("/orders/preview", (request, response) => {
-	const total = calculateOrderTotal(
-		request.body.order,
-		Number(request.body.discount ?? 0),
-		Number(request.body.tax ?? 0),
-		Number(request.body.shipping ?? 0),
-		String(request.body.coupon ?? ""),
-	);
+	const options: CalculateOrderTotalOptions = {
+		discount: Number(request.body.discount ?? 0),
+		tax: Number(request.body.tax ?? 0),
+		shipping: Number(request.body.shipping ?? 0),
+		coupon: String(request.body.coupon ?? ""),
+	};
+
+	const total = calculateOrderTotal(request.body.order, options);
 
 	response.json({ totalInCents: total });
 });
@@ -98,9 +132,19 @@ const sampleOrder: Order = {
 
 console.log(
 	"Total com BLACKFRIDAY:",
-	calculateOrderTotal(sampleOrder, 0.05, 0.08, 2500, "BLACKFRIDAY"),
+	calculateOrderTotal(sampleOrder, {
+		discount: 0.05,
+		tax: 0.08,
+		shipping: 2500,
+		coupon: "BLACKFRIDAY",
+	}),
 );
 console.log(
 	"Total com FRETEGRATIS:",
-	calculateOrderTotal(sampleOrder, 0, 0.08, 2500, "FRETEGRATIS"),
+	calculateOrderTotal(sampleOrder, {
+		discount: 0,
+		tax: 0.08,
+		shipping: 2500,
+		coupon: "FRETEGRATIS",
+	}),
 );

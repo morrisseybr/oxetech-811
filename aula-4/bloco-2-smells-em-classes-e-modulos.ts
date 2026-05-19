@@ -21,7 +21,7 @@ import express from "express";
 
 type Plan = "free" | "pro";
 
-type User = {
+type UserParams = {
 	id: number;
 	name: string;
 	email: string;
@@ -29,6 +29,24 @@ type User = {
 	active: boolean;
 	trialDays: number;
 };
+
+class User {
+	id: number;
+	name: string;
+	email: string;
+	plan: Plan;
+	active: boolean;
+	trialDays: number;
+
+	constructor(params: UserParams) {
+		this.id = params.id;
+		this.name = params.name;
+		this.email = params.email;
+		this.plan = params.plan;
+		this.active = params.active;
+		this.trialDays = params.trialDays;
+	}
+}
 
 type CreateUserInput = {
 	name: string;
@@ -46,53 +64,98 @@ class UserRepository {
 	save(user: User): void {
 		this.users.push(user);
 	}
+
+	countActive(): number {
+		let total = 0;
+		for (const user of this.users) {
+			if (user.active) total++;
+		}
+		return total;
+	}
+}
+
+class UserValidator {
+	private validateName(name: string): void {
+		if (name.trim().length < 2) {
+			throw new Error("Nome invalido");
+		}
+	}
+
+	private validateEmail(email: string): void {
+		if (!email.includes("@") || !email.includes(".")) {
+			throw new Error("Email invalido");
+		}
+	}
+
+	validate(input: CreateUserInput): void {
+		this.validateName(input.name);
+		this.validateEmail(input.email);
+	}
+}
+
+class TrialPolicy {
+	calculateTrialDays(plan: Plan): number {
+		if (plan === "pro") {
+			return 14;
+		}
+		return 7;
+	}
+}
+
+// Refatorar isso aqui depois de chegar da faculdade
+class Email {
+	readonly value: string;
+
+	constructor(raw: string) {
+		const normalized = raw.trim().toLowerCase();
+		if (!normalized.includes("@") || !normalized.includes(".")) {
+			throw new Error("Email invalido");
+		}
+		this.value = normalized;
+	}
+}
+
+function sendEmail(email: string): void {
+	console.log("Enviando boas-vindas para " + email);
 }
 
 export class UserService {
-	constructor(private readonly repository = new UserRepository()) {}
+	constructor(
+		private readonly repository = new UserRepository(),
+		private readonly validator = new UserValidator(),
+		private readonly trialPolicy = new TrialPolicy(),
+		private readonly emailSender = { send: sendEmail },
+	) {}
 
 	createUser(input: CreateUserInput): string {
-		if (input.name.trim().length < 2) {
-			throw new Error("Nome invalido");
-		}
-
-		if (!input.email.includes("@") || !input.email.includes(".")) {
-			throw new Error("Email invalido");
-		}
+		this.validator.validate(input);
 
 		if (this.repository.findByEmail(input.email)) {
 			throw new Error("Email ja cadastrado");
 		}
 
-		let trialDays = 7;
-		if (input.plan === "pro") {
-			trialDays = 14;
-		}
+		const trialDays = this.trialPolicy.calculateTrialDays(input.plan);
 
-		const user: User = {
+		const email = new Email(input.email);
+
+		const user = new User({
 			id: this.repository.users.length + 1,
 			name: input.name.trim(),
-			email: input.email.trim().toLowerCase(),
+			email: email.value,
 			plan: input.plan,
 			active: true,
-			trialDays,
-		};
+			trialDays: trialDays,
+		});
 
 		this.repository.save(user);
 
-		console.log("Enviando boas-vindas para " + user.email);
+		this.emailSender.send(user.email);
 
 		return "Usuario " + user.name + " criado com " + user.trialDays + " dias";
 	}
 
 	countActiveUsers(): number {
-		let total = 0;
-		for (const user of this.repository.users) {
-			if (user.active === true) {
-				total = total + 1;
-			}
-		}
-		return total;
+		return this.repository.countActive();
 	}
 }
 

@@ -20,10 +20,10 @@
 //   - A descrição do PR conta POR QUÊ você mexeu em cada coisa.
 // =============================================================================
 
-type Emp = {
+type Emprestimo = {
 	diasDeAtraso: number;
-	cat: string; // "tecnico", "ficcao", "infantil"
-	t: number; // 1 = aluno, 2 = professor, 3 = visitante
+	categoria: string; // "tecnico", "ficcao", "infantil"
+	tipoUsuario: number; // 1 = aluno, 2 = professor, 3 = visitante
 	precoLivro: number; // em centavos
 };
 
@@ -35,42 +35,61 @@ type Emp = {
 //   - 2 reais por dia para visitante
 //   - se atraso > 30 dias, soma 50% do preco do livro
 //   - livro tecnico paga em dobro
-export function calc(e: Emp): number {
-	if (e.diasDeAtraso <= 0) {
+const MULTA_POR_DIA_ALUNO = 100;
+const MULTA_POR_DIA_PROFESSOR = 50;
+const MULTA_POR_DIA_VISITANTE = 200;
+const LIMITE_ATRASO_LONGO = 30;
+const MULTA_ADICIONAL_ATRASO_LONGO = 0.5;
+const MULTIPLICADOR_LIVRO_TECNICO = 2;
+
+export function calcularMulta(emprestimo: Emprestimo): number {
+	if (emprestimo.diasDeAtraso <= 0) {
 		return 0;
 	}
-	let v = 0;
-	if (e.t === 1) {
-		v = 100;
+	let valorMulta = 0;
+	if (emprestimo.tipoUsuario === 1) {
+		valorMulta = MULTA_POR_DIA_ALUNO;
 	}
-	if (e.t === 2) {
-		v = 50;
+	if (emprestimo.tipoUsuario === 2) {
+		valorMulta = MULTA_POR_DIA_PROFESSOR;
 	}
-	if (e.t === 3) {
-		v = 200;
+	if (emprestimo.tipoUsuario === 3) {
+		valorMulta = MULTA_POR_DIA_VISITANTE;
 	}
-	let m = v * e.diasDeAtraso; // multa base
-	// adicional se atraso longo
-	if (e.diasDeAtraso > 30) {
-		m = m + Math.floor(e.precoLivro * 0.5);
+	let m = valorMulta * emprestimo.diasDeAtraso;
+	if (emprestimo.diasDeAtraso > LIMITE_ATRASO_LONGO) {
+		m = m + Math.floor(emprestimo.precoLivro * MULTA_ADICIONAL_ATRASO_LONGO);
 	}
-	// tecnico em dobro
-	if (e.cat === "tecnico") {
-		m = m * 2;
+	if (emprestimo.categoria === "tecnico") {
+		m = m * MULTIPLICADOR_LIVRO_TECNICO;
 	}
 	return m;
 }
 
-// exemplos — a saída no console não pode mudar depois da refatoração
 console.log(
 	"Aluno, 5 dias, ficcao:",
-	calc({ diasDeAtraso: 5, cat: "ficcao", t: 1, precoLivro: 4990 }),
+	calcularMulta({
+		diasDeAtraso: 5,
+		categoria: "ficcao",
+		tipoUsuario: 1,
+		precoLivro: 4990,
+	}),
 );
 console.log(
 	"Professor, 35 dias, tecnico:",
-	calc({ diasDeAtraso: 35, cat: "tecnico", t: 2, precoLivro: 9990 }),
+	calcularMulta({
+		diasDeAtraso: 35,
+		categoria: "tecnico",
+		tipoUsuario: 2,
+		precoLivro: 9990,
+	}),
 );
 console.log(
 	"Visitante, 0 dias:",
-	calc({ diasDeAtraso: 0, cat: "infantil", t: 3, precoLivro: 3990 }),
+	calcularMulta({
+		diasDeAtraso: 0,
+		categoria: "infantil",
+		tipoUsuario: 3,
+		precoLivro: 3990,
+	}),
 );

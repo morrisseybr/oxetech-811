@@ -24,62 +24,77 @@ import express from "express";
 // =============================================================================
 
 type TicketQuote = {
-	t: string; // "normal", "vip", "meia"
-	qtd: number;
-	usr: string; // "estudante", "cliente", "funcionario"
+	tipoIngresso: string;
+	quantidade: number;
+	usuario: string;
 	cupom: string;
 };
 
-export function calc(ticket: TicketQuote): number {
-	let price = 0;
+const DESCONTO_ESTUDANTE = 0.1;
+const DESCONTO_FUNCIONARIO = 0.2;
+const CUPOM_AULA4 = 500;
 
-	if (ticket.t === "normal") {
-		price = 4000;
-	}
-	if (ticket.t === "vip") {
-		price = 9000;
-	}
-	if (ticket.t === "meia") {
-		price = 2000;
-	}
+export function calcularValorIngresso(ticket: TicketQuote): number {
 
-	let total = price * ticket.qtd;
+	const preco = valorDoIngresso(ticket.tipoIngresso);
+	const total = preco * ticket.quantidade;
+	let valorComDesconto = totalComDesconto(total, ticket.usuario, ticket.cupom)
 
-	if (ticket.usr === "estudante") {
-		total = total - total * 0.1;
-	}
-	if (ticket.usr === "funcionario") {
-		total = total - total * 0.2;
-	}
-	if (ticket.cupom === "AULA4") {
-		total = total - 500;
+	if (valorComDesconto < 0) {
+		valorComDesconto = 0;
 	}
 
-	if (total < 0) {
-		total = 0;
+	return Math.round(valorComDesconto);
+}
+
+function valorDoIngresso(tipoIngresso: string): number {
+	let preco = 0;
+	if (tipoIngresso === "normal") {
+		preco = 4000;
+	}
+	if (tipoIngresso === "vip") {
+		preco = 9000;
+	}
+	if (tipoIngresso === "meia") {
+		preco = 2000;
 	}
 
-	return Math.round(total);
+	return preco
+}
+
+function totalComDesconto(preco: number, usuario: string, cupom: string): number {
+	let total = preco
+	if (usuario === "estudante") {
+		total = total - total * DESCONTO_ESTUDANTE;
+	}
+	if (usuario === "funcionario") {
+		total = total - total * DESCONTO_FUNCIONARIO;
+	}
+	if (cupom === "AULA4") {
+		total = total - CUPOM_AULA4;
+	}
+
+	return total;
 }
 
 const app = express();
 app.use(express.json());
 
 app.post("/tickets/quote", (request, response) => {
-	response.json({ totalInCents: calc(request.body) });
+	response.json({ totalInCents: calcularValorIngresso(request.body) });
 });
 
 export { app };
 
 console.log(
 	"Estudante normal x2:",
-	calc({ t: "normal", qtd: 2, usr: "estudante", cupom: "" }),
+	calcularValorIngresso({ tipoIngresso: "normal", quantidade: 2, usuario: "estudante", cupom: "" }),
 );
 console.log(
 	"Funcionario vip x1 com cupom:",
-	calc({ t: "vip", qtd: 1, usr: "funcionario", cupom: "AULA4" }),
+	calcularValorIngresso({ tipoIngresso: "vip", quantidade: 1, usuario: "funcionario", cupom: "AULA4" }),
 );
 console.log(
 	"Cliente meia x3:",
-	calc({ t: "meia", qtd: 3, usr: "cliente", cupom: "" }),
+	calcularValorIngresso({ tipoIngresso: "meia", quantidade: 3, usuario: "cliente", cupom: "" }),
 );
