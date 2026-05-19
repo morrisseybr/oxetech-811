@@ -34,17 +34,17 @@ const DESCONTO_ESTUDANTE = 0.1;
 const DESCONTO_FUNCIONARIO = 0.2;
 const CUPOM_AULA4 = 500;
 
-export function calc(ticket: TicketQuote): number {
+export function calcularValorIngresso(ticket: TicketQuote): number {
 
 	const preco = valorDoIngresso(ticket.tipoIngresso);
 	const total = preco * ticket.quantidade;
-	let valorDesconto = totalComDesconto(total, ticket.usuario, ticket.cupom)
+	let valorComDesconto = totalComDesconto(total, ticket.usuario, ticket.cupom)
 
-	if (valorDesconto < 0) {
-		valorDesconto = 0;
+	if (valorComDesconto < 0) {
+		valorComDesconto = 0;
 	}
 
-	return Math.round(valorDesconto);
+	return Math.round(valorComDesconto);
 }
 
 function valorDoIngresso(tipoIngresso: string): number {
