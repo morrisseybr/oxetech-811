@@ -24,9 +24,9 @@ import express from "express";
 // =============================================================================
 
 type TicketQuote = {
-	tipoIngresso: string; // "normal", "vip", "meia"
+	tipoIngresso: string;
 	quantidade: number;
-	usuario: string; // "estudante", "cliente", "funcionario"
+	usuario: string;
 	cupom: string;
 };
 
