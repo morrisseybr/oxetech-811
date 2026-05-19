@@ -24,42 +24,56 @@ import express from "express";
 // =============================================================================
 
 type TicketQuote = {
-	ticketType: string; // "normal", "vip", "meia"
-	quantity: number;
-	user: string; // "estudante", "cliente", "funcionario"
-	coupon: string;
+	tipoIngresso: string; // "normal", "vip", "meia"
+	quantidade: number;
+	usuario: string; // "estudante", "cliente", "funcionario"
+	cupom: string;
 };
 
+const DESCONTO_ESTUDANTE = 0.1;
+const DESCONTO_FUNCIONARIO = 0.2;
+const CUPOM_AULA4 = 500;
+
 export function calc(ticket: TicketQuote): number {
-	let price = 0;
 
-	if (ticket.ticketType === "normal") {
-		price = 4000;
-	}
-	if (ticket.ticketType === "vip") {
-		price = 9000;
-	}
-	if (ticket.ticketType === "meia") {
-		price = 2000;
+	const preco = valorDoIngresso(ticket.tipoIngresso);
+	const total = preco * ticket.quantidade;
+	let valorDesconto = totalComDesconto(total, ticket.usuario, ticket.cupom)
+
+	if (valorDesconto < 0) {
+		valorDesconto = 0;
 	}
 
-	let total = price * ticket.quantity;
+	return Math.round(valorDesconto);
+}
 
-	if (ticket.user === "estudante") {
-		total = total - total * 0.1;
+function valorDoIngresso(tipoIngresso: string): number {
+	let preco = 0;
+	if (tipoIngresso === "normal") {
+		preco = 4000;
 	}
-	if (ticket.user === "funcionario") {
-		total = total - total * 0.2;
+	if (tipoIngresso === "vip") {
+		preco = 9000;
 	}
-	if (ticket.coupon === "AULA4") {
-		total = total - 500;
-	}
-
-	if (total < 0) {
-		total = 0;
+	if (tipoIngresso === "meia") {
+		preco = 2000;
 	}
 
-	return Math.round(total);
+	return preco
+}
+
+function totalComDesconto(preco: number, usuario: string, cupom: string): number {
+	if (usuario === "estudante") {
+		preco = preco - preco * DESCONTO_ESTUDANTE;
+	}
+	if (usuario === "funcionario") {
+		preco = preco - preco * DESCONTO_FUNCIONARIO;
+	}
+	if (cupom === "AULA4") {
+		preco = preco - CUPOM_AULA4;
+	}
+
+	return preco;
 }
 
 const app = express();
@@ -73,13 +87,13 @@ export { app };
 
 console.log(
 	"Estudante normal x2:",
-	calc({ ticketType: "normal", quantity: 2, user: "estudante", coupon: "" }),
+	calc({ tipoIngresso: "normal", quantidade: 2, usuario: "estudante", cupom: "" }),
 );
 console.log(
 	"Funcionario vip x1 com cupom:",
-	calc({ ticketType: "vip", quantity: 1, user: "funcionario", coupon: "AULA4" }),
+	calc({ tipoIngresso: "vip", quantidade: 1, usuario: "funcionario", cupom: "AULA4" }),
 );
 console.log(
 	"Cliente meia x3:",
-	calc({ ticketType: "meia", quantity: 3, user: "cliente", coupon: "" }),
+	calc({ tipoIngresso: "meia", quantidade: 3, usuario: "cliente", cupom: "" }),
 );
