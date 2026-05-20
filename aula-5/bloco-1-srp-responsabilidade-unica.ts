@@ -58,22 +58,28 @@ export class UserValidator {
 }
 
 export class UserRepository {
-	createAndSaveUser(input: CreateUserInput, trialDays: number, users: User[]): User {
+	private users: User[] = [];
+
+	createAndSaveUser(input: CreateUserInput, trialDays: number): User {
 		const user: User = {
-			id: users.length + 1,
+			id: this.users.length + 1,
 			name: input.name.trim(),
 			email: input.email.trim().toLowerCase(),
 			plan: input.plan,
 			active: true,
 			trialDays: trialDays,
 		};
-		users.push(user);
+		this.users.push(user);
 		return user;
 	}
 
-	countUsers(users: User[]){
+	getUsers(): User[]{
+		return this.users;
+	}
+
+	countUsers(){
 		let total = 0;
-		for (const user of users) {
+		for (const user of this.users) {
 			if (user.active) {
 				total = total + 1;
 			}
@@ -88,17 +94,16 @@ export class EmailService {
 	}
 }
 export class UserService {
-	private users: User[] = [];
-
 	createUser(input: CreateUserInput): string {
 		
 		const validator: UserValidator = new UserValidator();
-		validator.validateInput(input, this.users);
+		const repository = new UserRepository();
+
+		validator.validateInput(input, repository.getUsers());
 
 		const trialDays = validator.validateTrialDays(input.plan)
 
-		const repository = new UserRepository();
-		const user =  repository.createAndSaveUser(input, trialDays, this.users);
+		const user =  repository.createAndSaveUser(input, trialDays);
 
 		const emailService = new EmailService();
 		emailService.sendWelcomeEmail(user.email)
@@ -107,7 +112,7 @@ export class UserService {
 
 	checkActiveUsers(){
 		const repository = new UserRepository();
-		return repository.countUsers(this.users);
+		return repository.countUsers();
 	}
 }
 
