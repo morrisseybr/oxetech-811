@@ -37,10 +37,8 @@ type User = {
 	trialDays: number;
 };
 
-export class UserService {
-	private users: User[] = [];
-
-	createUser(input: CreateUserInput): string {
+export class UserValidator {
+	validateInput(input: CreateUserInput, users: User[]): void {
 		if (input.name.trim().length < 2) {
 			throw new Error("Nome invalido");
 		}
@@ -48,42 +46,68 @@ export class UserService {
 		if (!input.email.includes("@") || !input.email.includes(".")) {
 			throw new Error("Email invalido");
 		}
-
 		const normalizedEmail = input.email.trim().toLowerCase();
-
-		if (this.users.some((user) => user.email === normalizedEmail)) {
+		if (users.some((user) => user.email === input.email)) {
 			throw new Error("Email ja cadastrado");
 		}
-
-		let trialDays = 7;
-		if (input.plan === "pro") {
-			trialDays = 14;
-		}
-
-		const user: User = {
-			id: this.users.length + 1,
-			name: input.name.trim(),
-			email: normalizedEmail,
-			plan: input.plan,
-			active: true,
-			trialDays,
-		};
-
-		this.users.push(user);
-
-		console.log("Enviando boas-vindas para " + user.email);
-
-		return "Usuario " + user.name + " criado com " + user.trialDays + " dias";
 	}
 
-	countActiveUsers(): number {
+	validateTrialDays(plan: Plan): number{
+		return plan === "pro" ? 14 : 7  
+	}
+}
+
+export class UserRepository {
+	createAndSaveUser(input: CreateUserInput, trialDays: number, users: User[]): User {
+		const user: User = {
+			id: users.length + 1,
+			name: input.name.trim(),
+			email: input.email.trim().toLowerCase(),
+			plan: input.plan,
+			active: true,
+			trialDays: trialDays,
+		};
+		users.push(user);
+		return user;
+	}
+
+	countUsers(users: User[]){
 		let total = 0;
-		for (const user of this.users) {
+		for (const user of users) {
 			if (user.active) {
 				total = total + 1;
 			}
 		}
 		return total;
+	}
+} 
+
+export class EmailService {
+	sendWelcomeEmail(email: string): void {
+		console.log("Enviando boas-vindas para " + email);
+	}
+}
+export class UserService {
+	private users: User[] = [];
+
+	createUser(input: CreateUserInput): string {
+		
+		const validator: UserValidator = new UserValidator();
+		validator.validateInput(input, this.users);
+
+		const trialDays = validator.validateTrialDays(input.plan)
+
+		const repository = new UserRepository();
+		const user =  repository.createAndSaveUser(input, trialDays, this.users);
+
+		const emailService = new EmailService();
+		emailService.sendWelcomeEmail(user.email)
+		return "Usuario " + user.name + " criado com " + user.trialDays + " dias";
+	}
+
+	checkActiveUsers(){
+		const repository = new UserRepository();
+		return repository.countUsers(this.users);
 	}
 }
 
@@ -105,4 +129,4 @@ console.log(
 console.log(
 	service.createUser({ name: "Bia", email: "bia@exemplo.com", plan: "free" }),
 );
-console.log("Usuarios ativos:", service.countActiveUsers());
+console.log("Usuarios ativos:", service.checkActiveUsers());
