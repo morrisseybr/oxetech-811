@@ -7,35 +7,30 @@
 //   3) Mantenha apenas comentários legítimos (aviso, "por quê", TODO).
 // =============================================================================
 
-export class Usuario {
-	public id: string;
-	public nomeDoUsuario: string;
-	public idade: number;
+export class User {
+	private id: string;
+	private userName: string;
+	private age: number;
 
-	// Construtor
-	constructor(id: string, nm: string, idd: number) {
-		this.id = id; // atribui id
-		this.nomeDoUsuario = nm; // atribui nome
-		this.idade = idd; // atribui idade
+	constructor(id: string, userName: string, age: number) {
+		this.id = id;
+		this.userName = userName;
+		this.age = age;
 	}
 
-	// verifica se é maior de idade (>= 18)
 	// OBS: alterado em 02/2024 — antes era 21
-	public ehMaiorDeIdade(): boolean {
-		// se idade for maior ou igual a 18 retorna true
-		if (this.idade >= 18) {
-			return true; // maior de idade
+	public isOfLegalAge(): boolean {
+		if (this.age >= 18) {
+			return true;
 		} else {
-			return false; // menor
+			return false;
 		}
 	}
 }
 
-// soma dois numeros
-// Autor: João — 2023
-export function f(a: number, b: number) {
-	return a + b; // retorna a soma
+export function sumTwoNumbers(numberOne: number, numberTwo: number) {
+	return numberOne + numberTwo;
 }
 
-console.log(new Usuario("u1", "Ana", 20).ehMaiorDeIdade());
-console.log(f(2, 3));
+console.log(new User("u1", "Ana", 20).isOfLegalAge());
+console.log(sumTwoNumbers(2, 3));
