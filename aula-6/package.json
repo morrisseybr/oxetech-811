@@ -1,0 +1,45 @@
+{
+	"name": "aula-6",
+	"version": "1.0.0",
+	"description": "Aula 6 — Base de Back-end, Docker e Segurança Aplicada",
+	"private": true,
+	"type": "commonjs",
+	"scripts": {
+		"dev": "tsx watch src/server.ts",
+		"start": "node dist/src/server.js",
+		"build": "tsc -p tsconfig.build.json",
+		"typecheck": "tsc --noEmit",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"migrate": "tsx scripts/migrate.ts",
+		"seed": "tsx scripts/seed.ts",
+		"format": "biome format --write .",
+		"lint": "biome check ."
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"bcryptjs": "^3.0.3",
+		"cors": "^2.8.5",
+		"dotenv": "^17.2.3",
+		"express": "^5.1.0",
+		"helmet": "^8.1.0",
+		"jsonwebtoken": "^9.0.2",
+		"pg": "^8.16.3",
+		"zod": "^4.1.13"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.15",
+		"@types/cors": "^2.8.19",
+		"@types/express": "^5.0.6",
+		"@types/jsonwebtoken": "^9.0.10",
+		"@types/node": "^25.7.0",
+		"@types/pg": "^8.15.6",
+		"@types/supertest": "^6.0.3",
+		"supertest": "^7.1.4",
+		"tsx": "^4.21.0",
+		"typescript": "^6.0.3",
+		"vitest": "^4.0.14"
+	}
+}
