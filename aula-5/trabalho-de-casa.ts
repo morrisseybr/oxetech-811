@@ -38,6 +38,12 @@ type Subscription = {
 	monthlyPriceInCents: number;
 };
 
+const pricingPolicies: Record<SubscriptionPlan, number> = {
+	starter:    2900,
+	pro:        5900,
+	enterprise: 9900,
+};
+
 export class SubscriptionService {
 	private subscriptions: Subscription[] = [];
 
@@ -50,12 +56,7 @@ export class SubscriptionService {
 			throw new Error("Assinatura precisa ter pelo menos um assento");
 		}
 
-		let pricePerSeat = 2900;
-		if (input.plan === "pro") {
-			pricePerSeat = 5900;
-		} else if (input.plan === "enterprise") {
-			pricePerSeat = 9900;
-		}
+		const pricePerSeat = pricingPolicies[input.plan];
 
 		const subscription: Subscription = {
 			id: this.subscriptions.length + 1,
