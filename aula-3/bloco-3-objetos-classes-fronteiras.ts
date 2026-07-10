@@ -8,6 +8,14 @@
 // =============================================================================
 
 // SDK externo simulado (imagine `npm install pagamento-vendor`)
+type Client = {
+	nome: string;
+	endereco: {
+		rua: string;
+		cidade: { nome: string; estado: { sigla: string } };
+	};
+}
+
 export const PagamentoVendorSDK = {
 	charge(p: { amount_cents: number; token: string }): {
 		status: "ok" | "fail";
@@ -15,17 +23,9 @@ export const PagamentoVendorSDK = {
 		txid?: string;
 	} {
 		if (p.token === "") return { status: "fail", code: 401 };
-		return { status: "ok", code: 200, txid: "tx_" + Date.now() };
+		return { status: "ok", code: 200, txid: `tx_${Date.now()}` };
 	},
 };
-
-export class Cliente {
-	public nome = "";
-	public endereco = {
-		rua: "",
-		cidade: { nome: "", estado: { sigla: "" } },
-	};
-}
 
 export class Pedido {
 	public clienteNome = "";
@@ -45,9 +45,9 @@ export class GerenciadorDePedidos {
 		// Deméter: cadeia de getters expondo a estrutura interna do cliente.
 		console.log(
 			"Entrega para " +
-				cliente.endereco.cidade.nome +
-				"/" +
-				cliente.endereco.cidade.estado.sigla,
+			cliente.endereco.cidade.nome +
+			"/" +
+			cliente.endereco.cidade.estado.sigla,
 		);
 
 		// Dependência direta do vendor — sem fronteira, sem adapter.
@@ -56,19 +56,28 @@ export class GerenciadorDePedidos {
 			token,
 		});
 		if (r.status === "fail") {
-			throw new Error("Falha vendor código " + r.code);
+			throw new Error(`Falha vendor código ${r.code}`);
 		}
 
 		const p = new Pedido();
 		p.clienteNome = cliente.nome;
 		p.totalCentavos = totalCentavos;
-		p.txid = r.txid!;
-		console.log("E-mail enviado para " + cliente.nome);
+		p.txid = r.txid ?? "";
+		console.log(`E-mail enviado para ${cliente.nome}`);
 		return p;
 	}
 }
 
-const c = new Cliente();
-c.nome = "Ana";
-c.endereco = { rua: "X", cidade: { nome: "Aracaju", estado: { sigla: "SE" } } };
-console.log(new GerenciadorDePedidos().processar(c, 10000, "tok123"));
+const clientAna: Client = {
+	nome: "Ana",
+	endereco: {
+		rua: "X",
+		cidade: {
+			nome: "Aracaju",
+			estado: { sigla: "SE" },
+		},
+	},
+
+}
+
+console.log(new GerenciadorDePedidos().processar(clientAna, 10000, "tok123"));

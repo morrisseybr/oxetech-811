@@ -20,57 +20,62 @@
 //   - A descrição do PR conta POR QUÊ você mexeu em cada coisa.
 // =============================================================================
 
-type Emp = {
-	diasDeAtraso: number;
-	cat: string; // "tecnico", "ficcao", "infantil"
-	t: number; // 1 = aluno, 2 = professor, 3 = visitante
-	precoLivro: number; // em centavos
+type bookLoan = {
+	daysLate: number;
+	bookGenre: string; // "tecnico", "ficcao", "infantil"
+	whoPickedUpTheBook: number; // 1 = aluno, 2 = professor, 3 = visitante
+	bookprice: number; // em centavos
 };
 
-// calcula a multa de um emprestimo atrasado
-// recebe o emprestimo e retorna o valor da multa em centavos
-// regras:
-//   - 1 real por dia de atraso para aluno
-//   - 50 centavos por dia para professor
-//   - 2 reais por dia para visitante
-//   - se atraso > 30 dias, soma 50% do preco do livro
-//   - livro tecnico paga em dobro
-export function calc(e: Emp): number {
-	if (e.diasDeAtraso <= 0) {
+export function calculateBookLateFee(bookloan: bookLoan): number {
+	const TECHNICAL_GENRE_MULTIPLIER = 2;
+	const LONG_LATE_THRESHOLD = 30;
+	const LONG_LATE_FEE_MULTIPLIER = 0.5;
+
+	if (bookloan.daysLate <= 0) {
 		return 0;
 	}
-	let v = 0;
-	if (e.t === 1) {
-		v = 100;
+	else {
+		let baseFee = feePerDay(bookloan.whoPickedUpTheBook) * bookloan.daysLate;
+		// adicional se atraso longo
+		if (bookloan.daysLate > LONG_LATE_THRESHOLD) {
+			baseFee = baseFee + Math.floor(bookloan.bookprice * LONG_LATE_FEE_MULTIPLIER);
+		}
+		// tecnico em dobro
+		if (bookloan.bookGenre === "tecnico") {
+			baseFee = baseFee * TECHNICAL_GENRE_MULTIPLIER;
+		}
+		return baseFee;
+
 	}
-	if (e.t === 2) {
-		v = 50;
-	}
-	if (e.t === 3) {
-		v = 200;
-	}
-	let m = v * e.diasDeAtraso; // multa base
-	// adicional se atraso longo
-	if (e.diasDeAtraso > 30) {
-		m = m + Math.floor(e.precoLivro * 0.5);
-	}
-	// tecnico em dobro
-	if (e.cat === "tecnico") {
-		m = m * 2;
-	}
-	return m;
 }
 
-// exemplos — a saída no console não pode mudar depois da refatoração
+function feePerDay(whoPickedUpTheBook: number): number {
+	const FINE_ALUNO = 100;
+	const FINE_PROFESSOR = 50;
+	const FINE_VISITANTE = 200;
+
+	switch (whoPickedUpTheBook) {
+		case 1:
+			return FINE_ALUNO;
+		case 2:
+			return FINE_PROFESSOR;
+		case 3:
+			return FINE_VISITANTE;
+		default:
+			throw new Error("Tipo de usuário inválido");
+	}
+}
+
 console.log(
 	"Aluno, 5 dias, ficcao:",
-	calc({ diasDeAtraso: 5, cat: "ficcao", t: 1, precoLivro: 4990 }),
+	calculateBookLateFee({ daysLate: 5, bookGenre: "ficcao", whoPickedUpTheBook: 1, bookprice: 4990 }),
 );
 console.log(
 	"Professor, 35 dias, tecnico:",
-	calc({ diasDeAtraso: 35, cat: "tecnico", t: 2, precoLivro: 9990 }),
+	calculateBookLateFee({ daysLate: 35, bookGenre: "tecnico", whoPickedUpTheBook: 2, bookprice: 9990 }),
 );
 console.log(
 	"Visitante, 0 dias:",
-	calc({ diasDeAtraso: 0, cat: "infantil", t: 3, precoLivro: 3990 }),
+	calculateBookLateFee({ daysLate: 0, bookGenre: "infantil", whoPickedUpTheBook: 3, bookprice: 3990 }),
 );

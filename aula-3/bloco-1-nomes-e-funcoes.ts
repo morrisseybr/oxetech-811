@@ -8,30 +8,53 @@
 //   4) Remova o flag argument `log` (separe cálculo de efeito colateral).
 // =============================================================================
 
-type P = { n: string; v: number; q: number };
+type Products = { name: string; value: number; quantity: number };
 
-// Calcula o total de um carrinho aplicando desconto por tipo de cliente
-// e, opcionalmente, imprime o recibo. Mistura cálculo com efeito colateral.
-export function calc(itens: P[], t: number, log: boolean): number {
-	let s = 0;
-	for (let i = 0; i < itens.length; i++) {
-		s = s + itens[i].v * itens[i].q;
-	}
-	let d = 0;
-	if (t === 1) d = s * 0.05;
-	if (t === 2) d = s * 0.1;
-	const tot = s - d;
-	if (log === true) {
-		console.log("Subtotal: R$ " + (s / 100).toFixed(2));
-		console.log("Desconto: R$ " + (d / 100).toFixed(2));
-		console.log("Total:    R$ " + (tot / 100).toFixed(2));
-	}
-	return tot;
+export function calculateCartTotal(
+	itens: Products[],
+	typeClient: number,
+): number {
+	const subTotal = calculateSubtotal(itens);
+	const discount = calculateDiscount(typeClient, subTotal);
+	const total = subTotal - discount;
+
+	return total;
 }
 
-const carrinho: P[] = [
-	{ n: "Camiseta", v: 7990, q: 2 },
-	{ n: "Tênis", v: 24990, q: 1 },
+export function printReceipt(itens: Products[], typeClient: number): void {
+	const subTotal = calculateSubtotal(itens);
+	const discount = calculateDiscount(typeClient, subTotal);
+	const total = subTotal - discount;
+
+	console.log("Subtotal: " + formatToBRL(subTotal));
+	console.log("Desconto: " + formatToBRL(discount));
+	console.log("Total:    " + formatToBRL(total));
+}
+
+function calculateSubtotal(itens: Products[]): number {
+	let subTotal = 0;
+	for (let i = 0; i < itens.length; i++) {
+		subTotal = subTotal + itens[i].value * itens[i].quantity;
+	}
+	return subTotal;
+}
+
+function calculateDiscount(typeClient: number, subTotal: number): number {
+	const DISCOUNT_TYPE_1 = 0.05;
+	const DISCOUNT_TYPE_2 = 0.1;
+
+	if (typeClient === 1) return DISCOUNT_TYPE_1 * subTotal;
+	if (typeClient === 2) return DISCOUNT_TYPE_2 * subTotal;
+	return 0;
+}
+
+function formatToBRL(cents: number): string {
+	return "R$ " + (cents / 100).toFixed(2);
+}
+
+const cart: Products[] = [
+	{ name: "Camiseta", value: 7990, quantity: 2 },
+	{ name: "Tênis", value: 24990, quantity: 1 },
 ];
 
-calc(carrinho, 1, true);
+printReceipt(cart, 1);
